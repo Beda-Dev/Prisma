@@ -21,9 +21,6 @@ export default function HomePage() {
     setMounted(true);
   }, []);
 
-  if (session) {
-    console.log(session);
-  }
 
   if (status === "loading")
     return (
@@ -77,7 +74,8 @@ export default function HomePage() {
           <li>
             <button
               className=" p-0 bg-transparent text-red-500 hover:text-gray-200 transition-colors"
-              onClick={() => document.getElementById("my_modal_1")?.showModal()}
+              onClick={() => {const modal = document.getElementById("my_modal_1") as HTMLDialogElement;
+                modal?.showModal()}}
             >
               Deconnexion
             </button>

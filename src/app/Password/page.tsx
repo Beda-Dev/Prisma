@@ -9,17 +9,27 @@ import { LockIcon } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
+import {AuthPass} from '@/lib/Inscription'
 
 export default function Component() {
-  const [password, setPassword] = useState('')
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const { data: session, status } = useSession()
+  const [mail , setMail] = useState<string>(session?.user?.email as string)
+  
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitted(true)
-    console.log('Password submitted:', password)
+    const formData = new FormData(e.currentTarget as HTMLFormElement)
+    const result = await AuthPass(formData)
+    if(result){
+      router.push("/Homepage")
+    }else {
+      setErrorMessage("Échec de l'authentification. Veuillez réessayer.")
+    }
+
   }
 
   if(!session){
@@ -67,20 +77,37 @@ export default function Component() {
             <h2 className="mt-4 text-2xl font-bold text-gray-700">Bienvenue {session?.user?.name} , veillez entrez votre mot de passe </h2>
           </div>
           <div className="mb-4">
+          <Label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2 hidden" hidden>
+              email
+            </Label>
+
+          <Input
+              type="text"
+              id="email"
+              name='email'
+              value={mail}
+              onChange={()=>setMail(mail)}
+              className="hidden"
+              hidden
+
+            />
             <Label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
               Mot de passe
             </Label>
             <Input
               type="password"
               id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              name='password'
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline rounded-sm"
               placeholder="••••••••"
               required
             />
+
           </div>
           <div className="flex items-center justify-between">
+          {errorMessage && (
+            <p className="text-red-500 text-sm text-center mb-4">{errorMessage}</p>
+          )}
             <Button type="submit" className="w-full">
               Envoyer
             </Button>

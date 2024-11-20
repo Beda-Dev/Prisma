@@ -1,3 +1,5 @@
+/* eslint-disable react/no-unescaped-entities */
+
 "use client";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,28 +17,59 @@ import { signIn } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Inscription } from "../../lib/Inscription";
+import ConnexionAuto from "../../lib/creationsession";
+import { Connection } from "@/lib/connection";
+import isPasswordNull from "@/lib/verification";
 
 export default function AuthForm() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLogin, setIsLogin] = useState<boolean>(true);
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [nom, setNom] = useState<string>("");
-  const [prenom, setPrenom] = useState<string>("");
+
+  interface data {
+    email: string;
+    password: string;
+  }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsLoading(true);
+    if (!isLogin) {
+      const formData1 = new FormData(event.currentTarget);
+      const result = await Inscription(formData1);
+      ConnexionAuto(result as data);
+      console.log(`inscription reussi`);
+    } else if (isLogin) {
+      const formData2 = new FormData(event.currentTarget);
+      const result2 = await Connection(formData2);
+      ConnexionAuto(result2 as data);
+      console.log(`connection reussi`);
+    }
 
     setIsLoading(false);
   }
 
   useEffect(() => {
-    if (session) {
-      router.push("/Homepage");
-    }
+    const redirect = async () => {
+      if (status == "authenticated" && session) {
+        try {
+          const verifyprovider = await isPasswordNull(
+            session.user?.email as string
+          );
+          if (verifyprovider) {
+            router.push("./Password")
+          }else{
+            router.push('./Homepage')
+          }
+        } catch (error) {
+          console.log(error)
+        }
+      }
+    };
+
+    redirect();
   }, [session, router]);
 
   return (
@@ -52,21 +85,14 @@ export default function AuthForm() {
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
                 id="email"
+                name="email"
                 type="email"
                 placeholder="m@example.com"
                 required
               />
               <Label htmlFor="password">Mot de passe</Label>
-              <Input
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                type="password"
-                required
-              />
+              <Input id="password" name="password" type="password" required />
               <Button disabled={isLoading} className="bg-orange-500">
                 {isLoading && <Mail className="mr-2 h-4 w-4 animate-spin" />}
                 Se connecter
@@ -85,38 +111,19 @@ export default function AuthForm() {
           <form onSubmit={onSubmit}>
             <div className="grid gap-2">
               <Label htmlFor="nom">Nom</Label>
-              <Input
-                id="nom"
-                type="text"
-                value={nom}
-                onChange={(e) => setNom(e.target.value)}
-                required
-              />
+              <Input id="nom" name="nom" type="text" required />
               <Label htmlFor="prenom">Prénom</Label>
+              <Input id="prenom" name="prenom" type="text" required />
+              <Label htmlFor="email1">Email</Label>
               <Input
-                id="prenom"
-                type="text"
-                value={prenom}
-                onChange={(e) => setPrenom(e.target.value)}
-                required
-              />
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
+                id="email1"
+                name="email1"
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
                 placeholder="m@example.com"
                 required
               />
-              <Label htmlFor="password">Mot de passe</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <Label htmlFor="password1">Mot de passe</Label>
+              <Input id="password1" type="password" name="password1" required />
               <Button disabled={isLoading} className="bg-orange-500">
                 {isLoading && <Mail className="mr-2 h-4 w-4 animate-spin" />}
                 S'inscrire
@@ -126,8 +133,6 @@ export default function AuthForm() {
                   className="cursor-pointer text-sm hover:underline"
                   onClick={() => {
                     setIsLogin(true);
-                    setEmail("");
-                    setPassword("");
                   }}
                 >
                   déjà inscrit ? se connecter
@@ -137,23 +142,21 @@ export default function AuthForm() {
           </form>
         )}
         <div className="text-center text-sm">
-          {isLogin ? <p>-- ou se connecter avec --</p> : <p>-- ou s'inscrire avec --</p>}
+          {isLogin ? (
+            <p>-- ou se connecter avec --</p>
+          ) : (
+            <p>-- ou s'inscrire avec --</p>
+          )}
         </div>
       </CardContent>
       <CardFooter>
         <div className="flex w-full gap-2">
-          <Button
-            variant="outline"
-            onClick={() => signIn("github")}
-          >
+          <Button variant="outline" onClick={() => signIn("github")}>
             <Github className="h-4 w-4" />
             Github
           </Button>
-          <Button
-            variant="outline"
-            onClick={() => signIn("google")}
-          >
-           <svg
+          <Button variant="outline" onClick={() => signIn("google")}>
+            <svg
               className=" h-4 w-4"
               viewBox="0 0 24 24"
               fill="#4285F4"
@@ -175,10 +178,7 @@ export default function AuthForm() {
             </svg>
             Google
           </Button>
-          <Button
-            variant="outline"
-            onClick={() => signIn("facebook")}
-          >
+          <Button variant="outline" onClick={() => signIn("facebook")}>
             <Facebook className="h-4 w-4" />
             Facebook
           </Button>
