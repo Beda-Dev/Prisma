@@ -5,7 +5,6 @@ import FacebookProvider from "next-auth/providers/facebook";
 import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "../../../../lib/prisma";
 import { compare } from "bcrypt";
-import { signIn } from "next-auth/react";
 
 interface User {
   id: string;
