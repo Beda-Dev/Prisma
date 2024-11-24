@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Github, Facebook, Mail } from "lucide-react";
+import { Github, Mail } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -150,7 +150,7 @@ export default function AuthForm() {
         </div>
       </CardContent>
       <CardFooter>
-        <div className="flex w-full gap-2">
+        <div className="flex w-full gap-2 justify-center">
           <Button variant="outline" onClick={() => signIn("github")}>
             <Github className="h-4 w-4" />
             Github
@@ -177,10 +177,6 @@ export default function AuthForm() {
               />
             </svg>
             Google
-          </Button>
-          <Button variant="outline" onClick={() => signIn("facebook")}>
-            <Facebook className="h-4 w-4" />
-            Facebook
           </Button>
         </div>
       </CardFooter>
