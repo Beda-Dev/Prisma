@@ -56,9 +56,12 @@ export const handler = NextAuth({
     }),
   ],
 
+  secret: process.env.NEXTAUTH_SECRET as string,
+
   pages: {
     error: "/auth/error",
   },
+
 
   callbacks: {
     async jwt({ token, account, user }) {

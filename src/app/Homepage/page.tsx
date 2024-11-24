@@ -85,7 +85,7 @@ export default function HomePage() {
                 <p className="py-4">voulez-vous vous deconnecter ?</p>
                 <div className="modal-action">
                   <button
-                    className="btn bg-red-500"
+                    className="btn bg-green-500"
                     onClick={() => {
                       signOut();
                     }}
@@ -93,7 +93,7 @@ export default function HomePage() {
                     OUI
                   </button>
                   <form method="dialog">
-                    <button className="btn bg-green-500">NON</button>
+                    <button className="btn bg-red-500">NON</button>
                   </form>
                 </div>
               </div>

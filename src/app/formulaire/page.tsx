@@ -70,7 +70,7 @@ export default function AuthForm() {
     };
 
     redirect();
-  }, [session, router]);
+  }, [session, router,status]);
 
   return (
     <Card className="w-[380px]">
